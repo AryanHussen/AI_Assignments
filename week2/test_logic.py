@@ -1,3 +1,4 @@
+# to test the files run this in terminal  ( py test_logic.py )
 # Import your functions from the logic file
 from logic import VacuumEnvironment, solve_vacuum
 
@@ -25,4 +26,5 @@ def run_test():
 
 # Run the test function
 if __name__ == "__main__":
+
     run_test()
