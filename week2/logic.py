@@ -1,3 +1,4 @@
+# py -m pip install customtkinter
 import heapq  # Import priority queue to help the AI pick the "best" next step
 import random # Import random to make the board different every time you run it
 
@@ -76,4 +77,5 @@ def solve_vacuum(env):
                 heapq.heappush(frontier, (priority, (r, c), new_path, new_cost))
 
     # If the AI tries everything and can't reach the dirt, return nothing
+
     return None, 0
