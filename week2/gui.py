@@ -1,17 +1,17 @@
-# py -m pip install customtkinter pillow
 import tkinter as tk
 import customtkinter as ctk
 from logic import VacuumEnvironment, solve_vacuum
+from report_writer import write_solution # Correctly imported
 from PIL import Image, ImageTk
+import os
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
-
 class VacuumGUI(ctk.CTk):
     CELL_SIZE = 130
-    OBSTACLE_SIZE = 75  # smaller than cell
-    ANIMATION_SPEED = 400  # delay in ms, slower
+    OBSTACLE_SIZE = 75  
+    ANIMATION_SPEED = 400  
 
     def __init__(self):
         super().__init__()
@@ -41,10 +41,14 @@ class VacuumGUI(ctk.CTk):
         self.animating = False
 
     def load_images(self):
-        self.floor_img = ImageTk.PhotoImage(Image.open("assets/floor.png").resize((self.CELL_SIZE, self.CELL_SIZE)))
-        self.obstacle_img = ImageTk.PhotoImage(Image.open("assets/obstacle.png").resize((self.OBSTACLE_SIZE, self.OBSTACLE_SIZE)))
-        self.dirt_img = ImageTk.PhotoImage(Image.open("assets/dirt.png").resize((self.CELL_SIZE, self.CELL_SIZE)))
-        self.vacuum_img = ImageTk.PhotoImage(Image.open("assets/vacuum.png").resize((self.CELL_SIZE, self.CELL_SIZE)))
+        # Ensure images are loaded correctly from your assets folder
+        try:
+            self.floor_img = ImageTk.PhotoImage(Image.open("assets/floor.png").resize((self.CELL_SIZE, self.CELL_SIZE)))
+            self.obstacle_img = ImageTk.PhotoImage(Image.open("assets/obstacle.png").resize((self.OBSTACLE_SIZE, self.OBSTACLE_SIZE)))
+            self.dirt_img = ImageTk.PhotoImage(Image.open("assets/dirt.png").resize((self.CELL_SIZE, self.CELL_SIZE)))
+            self.vacuum_img = ImageTk.PhotoImage(Image.open("assets/vacuum.png").resize((self.CELL_SIZE, self.CELL_SIZE)))
+        except Exception as e:
+            print(f"Error loading images: {e}. Ensure 'assets' folder contains the PNGs.")
 
     def create_frames(self):
         self.top_frame = ctk.CTkFrame(self)
@@ -86,15 +90,14 @@ class VacuumGUI(ctk.CTk):
                     self.canvas.create_image(x+offset, y+offset, anchor="nw", image=self.obstacle_img)
                 elif (r, c) in self.env.dirt_positions:
                     self.canvas.create_image(x, y, anchor="nw", image=self.dirt_img)
-                elif (r, c) in getattr(self.env, 'unreachable', []):
-                    self.canvas.create_oval(x+25, y+25, x+self.CELL_SIZE-25, y+self.CELL_SIZE-25, fill="red")
 
+        # Draw Vacuum
         if self.current_step == 0:
             r, c = self.env.start
         else:
             r, c = self.path[self.current_step-1]
-        x = c*self.CELL_SIZE
-        y = r*self.CELL_SIZE
+        
+        x, y = c*self.CELL_SIZE, r*self.CELL_SIZE
         self.canvas.create_oval(x+30, y+90, x+self.CELL_SIZE-30, y+self.CELL_SIZE-20, fill="black", stipple="gray50")
         self.canvas.create_image(x, y, anchor="nw", image=self.vacuum_img)
 
@@ -108,30 +111,32 @@ class VacuumGUI(ctk.CTk):
         self.animate_step()
 
     def animate_step(self):
+        # 1. Check if path is finished
         if self.current_step >= len(self.path):
             msg = f"✅ Finished! Total Cost = {self.current_cost}"
             if getattr(self.env, 'unreachable', []):
-                msg += f" | ⚠ Unreachable dirt: {len(self.env.unreachable)}"
+                msg += f" | ⚠ Unreachable dirt: {len(self.unreachable)}"
             self.info_label.configure(text=msg)
+            
+            # --- THE FIX: WRITE REPORT ON COMPLETION ---
+            write_solution(self.env, self.path, self.current_cost)
+            # -------------------------------------------
+            
             self.bell()
-            self.after(150, self.bell)
             self.animating = False
             return
 
+        # 2. Update Cost Logic (matches logic.py rules)
         if self.current_step > 0:
             prev_r, prev_c = self.path[self.current_step-1]
             curr_r, curr_c = self.path[self.current_step]
-            dr = curr_r - prev_r
-            dc = curr_c - prev_c
-            if dr == -1:
-                self.current_cost += 2
-            elif dr == 1:
-                self.current_cost += 0
-            elif dc == -1:
-                self.current_cost += 1
-            elif dc == 1:
-                self.current_cost += 1
+            dr, dc = curr_r - prev_r, curr_c - prev_c
+            
+            if dr == -1: self.current_cost += 2   # Up
+            elif dr == 1: self.current_cost += 0  # Down
+            elif dc != 0: self.current_cost += 1  # Left/Right
 
+        # 3. Clean dirt if found
         r, c = self.path[self.current_step]
         if (r, c) in self.env.dirt_positions:
             self.env.dirt_positions.remove((r, c))
@@ -146,7 +151,6 @@ class VacuumGUI(ctk.CTk):
         self.reset_environment()
         self.draw_grid()
         self.animating = False
-
 
 if __name__ == "__main__":
     app = VacuumGUI()
