@@ -1,3 +1,4 @@
+# py -m pip install customtkinter pillow
 import tkinter as tk
 import customtkinter as ctk
 from logic import VacuumEnvironment, solve_vacuum
