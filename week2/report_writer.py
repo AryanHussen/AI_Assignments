@@ -1,8 +1,14 @@
 from datetime import datetime
+import os
 
 def write_solution(env, path, total_cost):
+    # Check if file exists and has content to avoid leading empty lines on first run
+    file_exists = os.path.exists("solution.txt") and os.path.getsize("solution.txt") > 0
 
-    with open("solution.txt", "w") as file:
+    with open("solution.txt", "a") as file:
+        # Start writing after 5 empty lines if the file isn't empty
+        if file_exists:
+            file.write("\n" * 5)
 
         file.write("========================================\n")
         file.write("        SMART VACUUM CLEANER REPORT     \n")
@@ -21,7 +27,6 @@ def write_solution(env, path, total_cost):
         file.write("\n")
 
         if path:
-
             # ---------- COORDINATE VIEW ----------
             file.write("2) PATH WITH POSITIONS\n")
             file.write("----------------------------------------\n")
@@ -54,7 +59,6 @@ def write_solution(env, path, total_cost):
             file.write(f"Total Moves: {len(path)-1}\n")
             file.write(f"Total Cost : {total_cost}\n\n")
             file.write("RESULT: Goal Reached Successfully.\n")
-
         else:
             file.write("RESULT: No Solution Found.\n")
             file.write("Reason: Obstacles blocked all possible paths.\n")
