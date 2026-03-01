@@ -2,6 +2,7 @@ import tkinter as tk
 import customtkinter as ctk
 from logic import VacuumEnvironment, solve_vacuum
 from PIL import Image, ImageTk
+from report_writer import write_solution
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
@@ -21,6 +22,9 @@ class VacuumGUI(ctk.CTk):
 
         self.env = VacuumEnvironment(size=4)
         self.path, self.total_cost, self.unreachable = solve_vacuum(self.env)
+        
+        # --- ADDED THIS LINE TO GENERATE INITIAL REPORT ---
+        write_solution(self.env, self.path, self.total_cost)
 
         self.current_step = 0
         self.current_cost = 0
@@ -167,6 +171,10 @@ class VacuumGUI(ctk.CTk):
     def restart(self):
         self.env = VacuumEnvironment(size=4)
         self.path, self.total_cost, self.unreachable = solve_vacuum(self.env)
+        
+        # --- ADDED THIS LINE TO UPDATE REPORT ON RESTART ---
+        write_solution(self.env, self.path, self.total_cost)
+        
         self.current_step = 0
         self.current_cost = 0
         self.animating = False
