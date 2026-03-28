@@ -1,6 +1,6 @@
 import random  # For generating random positions for dirt and obstacles
 import heapq   # For the priority queue used in the A* algorithm
-# comments 
+
 
 class VacuumEnvironment:
     def __init__(self, size=4):
