@@ -42,6 +42,7 @@ def write_solution(env, path, total_cost):
 
         # Write a blank line after the grid to visually separate it from the next section
         file.write("\n")
+        
 
         # Only write path-related sections if a valid solution path was found (path is not empty/None)
         if path:
