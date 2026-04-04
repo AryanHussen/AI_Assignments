@@ -8,7 +8,8 @@ class VacuumEnvironment:
     def __init__(self, size=4):
         self.size = size  # Define the grid dimensions (default 4x4)
         self.start = (0, 0)  # Starting position of the robot — always top-left corner
-        self.grid = [["." for _ in range(size)] for _ in range(size)]  # Initialize empty grid — 2D list filled with "." meaning clean/passable cells
+        self.grid = [["." for _ in range(size)] for _ in range(size)]# Initialize empty grid — 2D list filled with "." meaning clean/passable cells
+        self.grid[0][0] = "V"  # Mark the starting cell with "V" to indicate the robot's initial position
         self.dirt_positions = []  # List to store where dirt is placed — will hold (row, col) tuples
         self.unreachable = []     # List for dirt that cannot be reached (blocked by obstacles) — used for reporting
 
@@ -36,6 +37,7 @@ class VacuumEnvironment:
             c = random.randint(0, self.size - 1)  # Random column within grid bounds
             # Ensure dirt isn't on start point or on an obstacle — must land on a clean passable cell
             if (r, c) != self.start and self.grid[r][c] == ".":
+                self.grid[r][c] = "D"  # Mark the cell as dirty — "D" means this cell has dirt that needs to be cleaned
                 self.dirt_positions.append((r, c))  # Add dirt to list as a (row, col) tuple
                 break                                # Exit the loop immediately — only one dirt needed
 
