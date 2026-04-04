@@ -184,7 +184,3 @@ Move 4: The vacuum moved RIGHT.
 ----------------------------------------
 Total Moves: 4
 Total Cost : 2
-
-RESULT: Goal Reached Successfully.
-
-========================================

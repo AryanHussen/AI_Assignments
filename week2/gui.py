@@ -14,7 +14,6 @@ ctk.set_appearance_mode("dark")
 # Set the default accent color for buttons and interactive elements to blue
 ctk.set_default_color_theme("blue")
 
-
 # Define the main application class, inheriting from CTk which acts as the root window
 class VacuumGUI(ctk.CTk):
 
