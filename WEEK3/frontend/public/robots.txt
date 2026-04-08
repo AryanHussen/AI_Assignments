@@ -1,3 +1,4 @@
-# https://www.robotstxt.org/robotstxt.html
+# This line identifies which crawlers the rules apply to (* means all crawlers)
 User-agent: *
+# Specifies folders or pages that crawlers should not visit (empty means they can crawl everything)
 Disallow:
