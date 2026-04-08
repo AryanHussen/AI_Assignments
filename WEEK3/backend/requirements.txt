@@ -1,0 +1,5 @@
+# Member 1: Backend Libraries
+# Required for the A* Pathfinder API
+
+fastapi    # The web framework for the logic
+uvicorn    # The ASGI server to run the application
