@@ -1,25 +1,32 @@
 {
+  // The name used on the device home screen where space is limited
   "short_name": "React App",
+  // The full name of your application
   "name": "Create React App Sample",
+  // An array of icons used for the app on various platforms and screen sizes
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src": "favicon.ico", // Path to the icon
+      "sizes": "64x64 32x32 24x24 16x16", // Standard browser icon sizes
+      "type": "image/x-icon" // File format
     },
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192" // Larger icon for mobile launchers
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512" // Splash screen icon for app startup
     }
   ],
+  // The page that opens first when the app is launched from an icon
   "start_url": ".",
+  // 'standalone' makes the app look like a native app (hides browser address bar)
   "display": "standalone",
+  // Matches the theme-color in index.html for UI consistency
   "theme_color": "#000000",
+  // The background color of the splash screen while the app loads
   "background_color": "#ffffff"
 }
