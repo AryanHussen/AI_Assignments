@@ -1,14 +1,19 @@
+/* Main wrapper: Centers the content, adds a light grey background, and prevents text selection */
 .container { padding: 40px; background: #f0f2f5; min-height: 100vh; user-select: none; }
+
+/* The white card holding the grid: Handles shadows, rounded corners, and positioning for the SVG layer */
 .grid-wrapper { position: relative; display: inline-block; background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
 
+/* The CSS Grid layout: Creates 10 columns, each 50px wide, with a 5px gap between cells */
 .grid-container { 
   display: grid; 
   grid-template-columns: repeat(10, 50px); 
   gap: 5px; 
   position: relative;
-  z-index: 2; 
+  z-index: 2; /* Ensures the grid sits on top of the SVG lines */
 }
 
+/* Base style for each square in the grid */
 .node-cell {
   width: 50px; height: 50px; border: 1px solid #f0f0f0;
   display: flex; align-items: center; justify-content: center;
@@ -16,10 +21,14 @@
   background: #fafafa; font-weight: bold;
 }
 
-.node-active { background: #e6f7ff; border-color: #91d5ff; color: #1890ff; }
-.node-start { background: #52c41a !important; color: white; border-color: #389e0d; }
-.node-goal { background: #ff4d4f !important; color: white; border-color: #cf1322; }
-.node-path { background: #faad14 !important; color: white; transform: scale(1.05); }
+/* State-specific styles for nodes */
+.node-active { background: #e6f7ff; border-color: #91d5ff; color: #1890ff; } /* Hover or selected */
+.node-start { background: #52c41a !important; color: white; border-color: #389e0d; } /* Start point (Green) */
+.node-goal { background: #ff4d4f !important; color: white; border-color: #cf1322; } /* End point (Red) */
+.node-path { background: #faad14 !important; color: white; transform: scale(1.05); } /* Calculated path (Yellow) */
 
+/* SVG Layer: Used to draw connecting lines between nodes behind the grid cells */
 svg { position: absolute; top: 15px; left: 15px; pointer-events: none; z-index: 1; }
+
+/* Labels for edge weights/costs: Includes a white 'stroke' (outline) to make text readable over lines */
 .cost-label { font-size: 11px; fill: #8c8c8c; font-weight: 600; paint-order: stroke; stroke: #fff; stroke-width: 3px; }
