@@ -1,17 +1,20 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import ReactDOM from 'react-dom/client'; // React 18+ way of managing the root
+import './index.css'; // Global styles
+import App from './App'; // Your main application component
+import reportWebVitals from './reportWebVitals'; // Performance monitoring tool
 
+// Finds the <div id="root"> from your index.html and creates the React Root
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
+// Renders the App component inside StrictMode (which helps catch bugs during development)
 root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+/* Initializes performance tracking. You can pass a console.log 
+   or an analytics service to see how fast your app loads.
+*/
 reportWebVitals();
