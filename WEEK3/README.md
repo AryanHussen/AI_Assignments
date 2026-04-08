@@ -22,6 +22,13 @@ This project is a visual implementation of the **A* Search Algorithm** using a 1
 
 ---
 
+## 📋 Prerequisites
+Before running the project, ensure your laptop has the following software installed:
+* **Python 3.12 or higher:** [Download here](https://www.python.org/downloads/)
+* **Node.js (LTS Version):** [Download here](https://nodejs.org/)
+
+---
+
 ## 📦 One-Click Setup (Quick Start)
 To run this project, you only need **Python 3.12+** and **Node.js (LTS)** installed.
 
