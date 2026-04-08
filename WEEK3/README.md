@@ -76,6 +76,7 @@ By default, modern browsers like Google Chrome and Microsoft Edge block the resu
     └── /src                 # Source Code (Member 2 & 3)
         ├── App.js           # Member 3: Drag logic, React state, and API calls
         ├── App.css          # Member 2: Grid design and node styling
+        ├── App.test.js      # Unit tests for the main App component
         ├── index.js         # Entry point for the React application
         ├── index.css        # Global CSS resets
         ├── reportWebVitals.js
