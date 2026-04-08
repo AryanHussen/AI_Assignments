@@ -48,8 +48,9 @@ By default, modern browsers like Google Chrome and Microsoft Edge block the resu
 4.  Click **Done** and then click **"Find Path"** again.
 
 ---
-
 ## 📂 Project Structure
+
+```text
 /WEEK3
 │
 ├── webui-user.bat           # Main "one-click" installer and launcher script
