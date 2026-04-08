@@ -50,14 +50,30 @@ By default, modern browsers like Google Chrome and Microsoft Edge block the resu
 ---
 
 ## 📂 Project Structure
-```text
-├── backend/
-│   ├── main.py            # Member 1: A* Algorithm & API
-│   └── requirements.txt   # Python Library list
-├── frontend/
-│   ├── package.json       # Node.js Library list (Ant Design)
-│   ├── public/            # index.html entry point
-│   └── src/
-│       ├── App.js         # Member 3: React Logic & Events
-│       └── App.css        # Member 2: Grid & Visual Design
-└── webui-user.bat         # Automated Installer/Launcher
+/WEEK3
+│
+├── webui-user.bat           # Main "one-click" installer and launcher script
+├── README.md                # Project documentation and setup guide
+├── .gitignore               # Config to prevent pushing node_modules/venv to GitHub
+│
+├── /backend                 # --- BACKEND (Member 1) ---
+│   ├── main.py              # A* Algorithm logic and FastAPI endpoints
+│   └── requirements.txt     # List of Python libraries (fastapi, uvicorn)
+│
+└── /frontend                # --- FRONTEND (Member 2 & 3) ---
+    ├── package.json         # List of React libraries and Ant Design
+    ├── package-lock.json    # Lockfile for consistent library versions
+    │
+    ├── /public              # Static Assets (Member 2)
+    │   ├── index.html       # The main HTML shell for the app
+    │   ├── favicon.ico      # Project tab icon
+    │   ├── manifest.json    # Web app metadata
+    │   └── robots.txt       # Search engine instructions
+    │
+    └── /src                 # Source Code (Member 2 & 3)
+        ├── App.js           # Member 3: Drag logic, React state, and API calls
+        ├── App.css          # Member 2: Grid design and node styling
+        ├── index.js         # Entry point for the React application
+        ├── index.css        # Global CSS resets
+        ├── reportWebVitals.js
+        └── setupTests.js
