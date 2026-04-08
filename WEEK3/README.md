@@ -68,7 +68,8 @@ By default, modern browsers like Google Chrome and Microsoft Edge block the resu
     ├── /public              # Static Assets (Member 2)
     │   ├── index.html       # The main HTML shell for the app
     │   ├── favicon.ico      # Project tab icon
-    │   ├── image_f48486.png # Custom project icon/asset
+    │   ├── logo192.png      # logo of React
+    |   ├── logo512.png      # logo of React
     │   ├── manifest.json    # Web app metadata (updated with new icon)
     │   └── robots.txt       # Search engine instructions
     │
