@@ -1,116 +1,73 @@
-// Import React and useState hook for managing component state
 import React, { useState } from 'react';
-
-// Import UI components from Ant Design library
 import { Button, Input, Card, Space, Typography, message, Divider } from 'antd';
+import './App.css'; // Import Member 2's visual styles
 
-// Import CSS styling file
-import './App.css';
-
-// Extract Title and Text components from Typography
 const { Title, Text } = Typography;
+const CELL_S = 55; // Constant for cell size (50px) + gap (5px) for coordinate math
 
-// Define constant cell size (50px cell + 5px gap)
-const CELL_S = 55;
-
-// Main functional component
 function App() {
-
-  // Store all nodes (S, G, A, B...) with their positions and connections
+  // --- STATE MANAGEMENT ---
+  // nodes: Stores all points placed on the grid { 'A': {x: 1, y: 2, connections: []} }
   const [nodes, setNodes] = useState({});
-
-  // Store the final shortest path returned from backend
+  // path: Stores the array of node names returned by the AI (e.g., ['S', 'A', 'G'])
   const [path, setPath] = useState([]);
-
-  // Store the current node name typed in the input
+  // inputName: Tracks the text typed in the input box for the next node
   const [inputName, setInputName] = useState("");
-
-  // Store the node where drag connection starts
+  // dragStart: Stores the name of the node where a drag-to-connect gesture began
   const [dragStart, setDragStart] = useState(null);
-
-  // Store mouse position for drawing ghost line while dragging
+  // mousePos: Tracks the current mouse coordinates for the "ghost" connection line
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  // Function to add a new node to the grid
+  // Function to add a new node (S, G, or intermediate letters) to the grid
   const addNode = (x, y) => {
-
-    // Get input name, remove spaces, convert to uppercase
-    const name = inputName.trim().toUpperCase();
-
-    // Show warning if input is empty
+    const name = inputName.trim().toUpperCase(); // Normalize input to uppercase
     if (!name) return message.warning("Please type a Node Name (e.g., S, G, A) first!");
-
-    // Prevent duplicate node names
     if (nodes[name]) return message.error("This node name already exists on the board!");
-
-    // Add new node with position and empty connections list
+    
+    // Add new node object to the state
     setNodes({ 
       ...nodes, 
       [name]: { x, y, connections: [] } 
     });
-
-    // Clear input field after adding
-    setInputName("");
+    setInputName(""); // Clear input after adding
   };
 
-  // Handle finishing a drag-to-connect action
+  // Logic to handle the end of a drag-to-connect gesture
   const handleMouseUp = (targetName) => {
-
-    // Make sure drag started and target is different
     if (dragStart && targetName && dragStart !== targetName) {
-
-      // Get both nodes
       const nodeA = nodes[dragStart];
       const nodeB = nodes[targetName];
       
-      // Calculate Manhattan distance (|x1-x2| + |y1-y2|)
+      // Calculate Manhattan distance (|x1-x2| + |y1-y2|) as the edge cost
       const dist = Math.abs(nodeA.x - nodeB.x) + Math.abs(nodeA.y - nodeB.y);
       
-      // Copy nodes object to modify safely
       const updatedNodes = { ...nodes };
-
-      // Prevent duplicate connections
+      // Prevent duplicate connections between the same two nodes
       if (!updatedNodes[dragStart].connections.find(c => c.node === targetName)) {
-
-        // Add connection in both directions (undirected graph)
+        // Add bidirectional connection (A -> B and B -> A)
         updatedNodes[dragStart].connections.push({ node: targetName, cost: dist });
         updatedNodes[targetName].connections.push({ node: dragStart, cost: dist });
-
-        // Update state
         setNodes(updatedNodes);
       }
     }
-
-    // Stop dragging
-    setDragStart(null);
+    setDragStart(null); // Reset drag state
   };
 
-  // Call backend to calculate shortest path
+  // Function to call the FastAPI Backend (Member 1) to solve the path
   const calculate = async () => {
     try {
-
-      // Send POST request to backend server
       const res = await fetch('http://localhost:8000/solve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-
-        // Send start, goal and graph nodes
         body: JSON.stringify({ start_node: "S", goal_node: "G", nodes })
       });
-
-      // Convert response to JSON
       const data = await res.json();
       
-      // If path found
       if (data.path && data.path.length > 0) {
-
-        // Save path to state
-        setPath(data.path);
+        setPath(data.path); // Highlight the path on the grid
         
-        // Open new popup window to show result
+        // Open the solution window with the mathematical breakdown
         const win = window.open("", "_blank", "width=500,height=300");
-
-        // Write formatted HTML inside popup
         win.document.write(`
           <div style="font-family:sans-serif; text-align:center; padding:40px;">
             <h2 style="color:#1890ff;">Pathfinding Result</h2>
@@ -120,35 +77,20 @@ function App() {
             <button onclick="window.close()" style="margin-top:10px; cursor:pointer;">Close Window</button>
           </div>
         `);
-
-      } else {
-
-        // Show error if no path found
-        message.error("No valid path found from S to G. Ensure they are connected!");
+      } else { 
+        message.error("No valid path found from S to G. Ensure they are connected!"); 
       }
-
-    } catch (e) {
-
-      // Show error if backend not running
-      message.error("Backend Error: Ensure main.py is running on port 8000.");
+    } catch (e) { 
+      message.error("Backend Error: Ensure webui-user.bat launched the server on port 8000."); 
     }
   };
 
-  // Return JSX UI
   return (
-
-    // Main container and track mouse movement
     <div className="container" onMouseMove={e => setMousePos({ x: e.clientX, y: e.clientY })}>
-
-      {/* Page title */}
       <Title level={2}>A* Manhattan Pathfinder</Title>
       
       <Space align="start" size="large">
-
-        {/* Grid Board Card */}
         <Card title="Grid Board">
-
-          {/* Input field for node name */}
           <Input 
             placeholder="Node Name (Set S and G first)" 
             value={inputName} 
@@ -157,19 +99,12 @@ function App() {
           />
           
           <div className="grid-wrapper">
-
-            {/* SVG layer for drawing lines between nodes */}
+            {/* SVG Layer: Draws the connection lines and edge costs */}
             <svg width="550" height="550">
-
-              {/* Loop through nodes and draw connections */}
               {Object.keys(nodes).map(n => nodes[n].connections.map(c => {
-
                 const t = nodes[c.node];
-
                 return (
                   <g key={n + c.node}>
-
-                    {/* Draw connection line */}
                     <line 
                       x1={nodes[n].x * CELL_S + 25} 
                       y1={nodes[n].y * CELL_S + 25} 
@@ -178,8 +113,6 @@ function App() {
                       stroke="#1890ff" 
                       strokeWidth="2"
                     />
-
-                    {/* Display cost text */}
                     <text 
                       x={(nodes[n].x * CELL_S + t.x * CELL_S + 50) / 2} 
                       y={(nodes[n].y * CELL_S + t.y * CELL_S + 50) / 2} 
@@ -190,8 +123,8 @@ function App() {
                   </g>
                 );
               }))}
-
-              {/* Ghost line while dragging */}
+              
+              {/* Ghost Line: Follows the mouse during a drag connection gesture */}
               {dragStart && (
                 <line 
                   x1={nodes[dragStart].x * CELL_S + 25} 
@@ -203,3 +136,62 @@ function App() {
                 />
               )}
             </svg>
+
+            {/* Grid Container: Renders the 10x10 board cells */}
+            <div className="grid-container">
+              {[...Array(10)].map((_, y) => [...Array(10)].map((_, x) => {
+                const name = Object.keys(nodes).find(k => nodes[k].x === x && nodes[k].y === y);
+                
+                // Determine CSS class based on node type for Member 2's styling
+                let cls = "node-cell";
+                if (name === "S") cls += " node-start";
+                else if (name === "G") cls += " node-goal";
+                else if (path.includes(name)) cls += " node-path";
+                else if (name) cls += " node-active";
+
+                return (
+                  <div 
+                    key={x + "-" + y} 
+                    className={cls} 
+                    onClick={() => !name && addNode(x, y)} 
+                    onMouseDown={() => name && setDragStart(name)} 
+                    onMouseUp={() => name && handleMouseUp(name)}
+                  >
+                    {name}
+                  </div>
+                );
+              }))}
+            </div>
+          </div>
+        </Card>
+
+        {/* Sidebar Tools Panel */}
+        <Card title="Tools" style={{ width: 280 }}>
+          <Space direction="vertical" style={{ width: '100%' }} size="middle">
+            <Button type="primary" block size="large" onClick={calculate}>
+              Find Path
+            </Button>
+            <Button block onClick={() => { setNodes({}); setPath([]); }}>
+              Reset Board
+            </Button>
+            
+            <Divider style={{ margin: '12px 0' }} />
+            
+            <div style={{ background: '#fafafa', padding: '12px', borderRadius: '8px', border: '1px solid #f0f0f0' }}>
+              <Text strong style={{ display: 'block', marginBottom: '8px' }}>Instructions:</Text>
+              <ul style={{ paddingLeft: '18px', margin: 0, fontSize: '13px', color: '#666' }}>
+                <li>Type <b>'S'</b> and click a cell for Start.</li>
+                <li>Type <b>'G'</b> and click a cell for Goal.</li>
+                <li>Add other nodes (A, B, C...) similarly.</li>
+                <li><b>Drag</b> between nodes to create a connection.</li>
+                <li>Click <b>Find Path</b> to solve.</li>
+              </ul>
+            </div>
+          </Space>
+        </Card>
+      </Space>
+    </div>
+  );
+}
+
+export default App;
