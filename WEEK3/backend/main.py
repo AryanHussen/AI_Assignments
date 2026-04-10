@@ -1,10 +1,10 @@
 # Member 1: Backend Engineering - A* Pathfinding Logic
 # Language: Python | Framework: FastAPI
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import List, Dict, Tuple, Any
+from fastapi import FastAPI # The core FastAPI class to create our web server and define endpoints.
+from fastapi.middleware.cors import CORSMiddleware # Middleware to handle Cross-Origin Resource Sharing (CORS) which allows our React frontend to communicate with this backend.
+from pydantic import BaseModel # A library for data validation and settings management using Python type annotations. We use it to define the expected structure of incoming JSON data.
+from typing import List, Dict, Tuple, Any # Type hinting for better code readability and error checking. We use these to specify the types of our variables and function parameters.
 
 # Step 1: Initialize the FastAPI server instance
 # This object 'app' will handle all incoming web requests from the React frontend.
