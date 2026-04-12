@@ -53,5 +53,3 @@ echo Starting Frontend Interface...
 npm start
 
 pause
-
-explain this in same style
