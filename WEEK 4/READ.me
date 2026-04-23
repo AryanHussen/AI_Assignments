@@ -1,0 +1,56 @@
+# 🧩 Magic Square Solver - Genetic Algorithm (GA)
+
+This project solves a 3x3 Magic Square puzzle using a Genetic Algorithm built entirely in vanilla Python. It features a fully automated pipeline that evolves generations, saves the best solutions to a JSON file, and serves them via a Flask backend to a modern, interactive web interface.
+
+## 🎯 The Puzzle & Rules
+* **Grid:** 3x3.
+* **Allowed Numbers:** Integers 1 through 9.
+* **Constraints:** No number duplication is allowed.
+* **Goal:** The sum of the numbers in every row, column, and diagonal must equal exactly **15**.
+
+---
+
+## 👥 Team Structure & Workflow
+The project is architected following a strict modular approach (MVC pattern), divided among three team members. Each member completely owns a specific part of the pipeline:
+
+### 1. The Algorithm Engineer (`ga.py`)
+Responsible for the core logic, mathematics, and genetic operations.
+* **Tasks:** Fitness Calculation, Crossover, Mutation, and Population Generation.
+
+### 2. The Orchestrator (`main.py`)
+Responsible for system execution, data flow, and environment orchestration.
+* **Tasks:** GA loop execution, saving data to `history.json`, spinning up the background Flask thread, and launching the browser.
+
+### 3. The Web Developer (`app.py` & `templates/index.html`)
+Responsible for the backend API bridge and the frontend User Interface.
+* **Tasks:** Setting up Flask routes (`/` and `/data`), designing the UI, and using JavaScript `fetch()` to render the 3x3 grids dynamically.
+
+---
+
+## 🛠️ Prerequisites & Installation
+
+To run this project, you need the following installed:
+* **Python 3.x**
+* **Pip** (Python package installer)
+
+**Install Required Libraries:**
+The core logic uses standard Python libraries. The web interface requires **Flask**. Open your terminal and run:
+```bash
+pip install Flask
+
+
+
+## 🚀 How to Run the Application
+Open your Terminal / Command Prompt.
+
+Navigate to the project directory:
+
+cd path/to/magic_square_ga
+
+Execute the main script:
+
+python main.py
+
+To Stop The Script From Run :
+
+Hit (Ctrl + C) in Command Prompt 
