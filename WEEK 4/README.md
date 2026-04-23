@@ -60,15 +60,16 @@ Handles backend API and frontend UI.
 
 ## 📁 Project Structure
 
+```text
 magic_square_ga/
 │
-├── ga.py # Genetic Algorithm logic
-├── main.py # Execution controller
-├── app.py # Flask backend
-├── history.json # Saved generations
+├── ga.py               # Genetic Algorithm logic
+├── main.py             # Execution controller
+├── app.py              # Flask backend
+├── history.json        # Saved generations
 │
 └── templates/
-└── index.html # Frontend UI
+    └── index.html      # Frontend UI
 
 
 
