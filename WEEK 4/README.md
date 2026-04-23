@@ -70,9 +70,7 @@ magic_square_ga/
 │
 └── templates/
     └── index.html      # Frontend UI
-
-
-
+```
 ---
 
 ## 🛠️ Requirements
