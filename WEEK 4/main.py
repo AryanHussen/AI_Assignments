@@ -4,7 +4,7 @@ import webbrowser # Import webbrowser to automatically open the UI in the defaul
 import threading # Import threading to run the Flask server in the background
 import time # Import time to add delays so the server has time to start
 import ga # Import your custom genetic algorithm logic module
-import app # Import your custom Flask application module
+import app # type: ignore # Import your custom Flask application module
 
 
 # -----------------------------
