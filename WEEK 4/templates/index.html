@@ -1,0 +1,164 @@
+<!DOCTYPE html> <html> <head> <title>Magic Square GA</title> <style>
+        /* Global body styling to center content and set background/font */
+        body {
+            margin: 0; /* Remove default browser margins */
+            font-family: Arial, sans-serif; /* Set the font family */
+            background: #f1f5f9; /* Set a light grayish-blue background color */
+            color: #0f172a; /* Set the default text color to dark slate */
+            display: flex; /* Use flexbox to layout the sidebar and main area side-by-side */
+            height: 100vh; /* Make the body fill the entire height of the viewport */
+        }
+
+        /* LEFT SIDEBAR styling */
+        #sidebar {
+            width: 300px; /* Fixed width for the sidebar */
+            background: #ffffff; /* White background for contrast */
+            padding: 15px; /* Add inner spacing */
+            overflow-y: auto; /* Enable vertical scrolling if the list gets too long */
+            border-right: 1px solid #e2e8f0; /* Add a subtle line to separate it from the main area */
+        }
+
+        #sidebar h2 {
+            color: #0ea5e9; /* Light blue color for the sidebar header */
+            margin-bottom: 15px; /* Spacing below the header */
+        }
+
+        /* Individual generation item button styling */
+        .item {
+            padding: 12px; /* Inner spacing */
+            margin-bottom: 10px; /* Spacing between items */
+            background: #f8fafc; /* Very light blue/gray background */
+            border-radius: 10px; /* Rounded corners */
+            cursor: pointer; /* Change mouse cursor to a pointer to indicate clickability */
+            transition: 0.2s; /* Smooth transition for hover effects */
+            border: 1px solid #e2e8f0; /* Subtle border */
+        }
+
+        /* Hover effect for generation items */
+        .item:hover {
+            background: #e0f2fe; /* Change background to a slightly darker blue on hover */
+            transform: scale(1.02); /* Slightly enlarge the item on hover */
+        }
+
+        /* MAIN AREA styling */
+        #main {
+            flex: 1; /* Take up all remaining horizontal space next to the sidebar */
+            display: flex; /* Use flexbox to center content */
+            flex-direction: column; /* Stack children vertically */
+            align-items: center; /* Center children horizontally */
+            justify-content: center; /* Center children vertically */
+            padding: 20px; /* Inner spacing */
+        }
+
+        /* INFO text (Generation # and fitness) styling */
+        #info {
+            margin-bottom: 30px; /* Space between the text and the grid */
+            font-size: 22px; /* Large font size */
+            font-weight: bold; /* Make text bold */
+            color: #0f172a; /* Dark slate color */
+        }
+
+        /* Visual badge for the fitness score */
+        .badge {
+            background: #22c55e; /* Green background color */
+            color: white; /* White text */
+            padding: 6px 12px; /* Inner spacing */
+            border-radius: 8px; /* Rounded corners */
+            margin-left: 10px; /* Space it away from the text next to it */
+            font-size: 14px; /* Smaller text size */
+        }
+
+        /* BIG 3x3 GRID styling */
+        #grid {
+            display: grid; /* Use CSS Grid layout */
+            grid-template-columns: repeat(3, 160px); /* Create 3 columns, each 160px wide */
+            gap: 20px; /* Space between the grid cells */
+        }
+
+        /* Individual grid cell styling */
+        .cell {
+            width: 160px; /* Fixed width */
+            height: 160px; /* Fixed height to make it a square */
+            background: #ffffff; /* White background */
+            display: flex; /* Use flexbox to center the number inside the cell */
+            align-items: center; /* Center number vertically */
+            justify-content: center; /* Center number horizontally */
+            font-size: 48px; /* Very large text for the number */
+            font-weight: bold; /* Bold number */
+            border-radius: 18px; /* Smooth rounded corners */
+            border: 2px solid #e2e8f0; /* Subtle border */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08); /* Soft drop shadow for 3D effect */
+            transition: 0.2s; /* Smooth transition for hover effects */
+        }
+
+        /* Hover effect for grid cells */
+        .cell:hover {
+            background: #f0f9ff; /* Change to pale blue */
+            transform: scale(1.05); /* Enlarge slightly to 'pop' out */
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div id="sidebar">
+    <h2>Generations</h2> </div>
+
+<div id="main">
+    <div id="info">Select a generation</div> <div id="grid"></div> </div>
+
+<script>
+// Fetch the JSON data from the Flask API endpoint
+fetch("/data")
+.then(res => res.json()) // Parse the raw HTTP response into a JavaScript array/object
+.then(data => { // Once the data is loaded, execute this block
+
+    // Get references to the HTML elements we need to update
+    const sidebar = document.getElementById("sidebar");
+    const grid = document.getElementById("grid");
+    const info = document.getElementById("info");
+
+    // Loop through each generation object in the fetched JSON data
+    data.forEach(item => {
+
+        // Create a new <div> element for the sidebar list item
+        const div = document.createElement("div");
+        div.className = "item"; // Assign the 'item' CSS class for styling
+
+        // Insert the generation number and fitness score into the div
+        div.innerHTML = `
+            <b>Generation ${item.gen}</b><br>
+            Fitness: <span style="color:#0ea5e9">${item.fitness}</span>
+        `;
+
+        // Add a click event listener to this specific sidebar item
+        div.onclick = () => {
+
+            // Update the top info text to show the clicked generation and its fitness badge
+            info.innerHTML = `
+                Generation ${item.gen}
+                <span class="badge">Fitness: ${item.fitness}</span>
+            `;
+
+            // Clear any existing numbers from the 3x3 grid container
+            grid.innerHTML = "";
+
+            // Loop through the 9 numbers in the selected generation's grid array
+            item.grid.forEach(num => {
+                const cell = document.createElement("div"); // Create a new <div> for the cell
+                cell.className = "cell"; // Assign the 'cell' CSS class for styling
+                cell.innerText = num; // Set the inner text to the grid number
+                grid.appendChild(cell); // Add the newly created cell into the grid container
+            });
+        };
+
+        // Add the fully constructed item div into the sidebar container
+        sidebar.appendChild(div);
+    });
+
+});
+</script>
+
+</body>
+</html>
