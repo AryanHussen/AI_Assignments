@@ -14,8 +14,6 @@ def calculate_fitness(grid): # Function to evaluate how close a grid is to a per
     score += abs(grid[0] + grid[4] + grid[8] - TARGET) # Add penalty for the main diagonal (top-left to bottom-right)
     score += abs(grid[2] + grid[4] + grid[6] - TARGET) # Add penalty for the anti-diagonal (top-right to bottom-left)
 
-    score += (9 - len(set(grid))) * 20 # Add a heavy penalty (20 points) for any duplicate numbers (set removes duplicates)
-
     return score # Return the final calculated fitness score
 
 def generate_individual(): # Function to create a random new 3x3 grid
@@ -28,9 +26,6 @@ def crossover(p1, p2): # Function to combine two parent grids to create a child
     for gene in p2: # Loop through the numbers in parent 2
         if gene not in child: # Check if the number is not already in the child
             child.append(gene) # If it's missing, add it to the child to preserve ordering from parent 2
-
-    missing = [g for g in range(1, 10) if g not in child] # Find any numbers from 1-9 that are still missing
-    child += missing # Append the missing numbers to ensure the child has all 9 digits
 
     return child # Return the newly created child grid
 
