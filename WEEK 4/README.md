@@ -99,6 +99,6 @@ The browser will open automatically.
 
 ### 🛑 Stop the Program
 
-To stop execution at any time:
+To stop execution at any time in command prompt:
 
 Ctrl + C
