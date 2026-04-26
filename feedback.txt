@@ -3,16 +3,18 @@ Student Feedback :
 Naz Supa :                               
 
 Week 1 --> 9/10  --> Leader --> Shya
-Week 2 --> 8/10  --> Leadere --> Aryan
-Week 3 --> 8/10  --> Leadere --> Aryan
+Week 2 --> 8/10  --> Leader  --> Aryan
+Week 3 --> 8/10  --> Leader  --> Aryan
+week 4 -->  /10  --> leader  --> Aryan
+
 
 
 Soma Khasro :                             
 
 Week 1 --> 9/10  --> Leader --> Shya     
-Week 2 --> 9/10  --> Leadere --> Aryan       
-Week 3 --> 8/10  --> Leadere --> Aryan       
-
+Week 2 --> 9/10  --> Leader  --> Aryan       
+Week 3 --> 8/10  --> Leader  --> Aryan       
+week 4 --> 9/10  --> leader  --> Aryan
 
 
 Leader Feedback :                          
@@ -20,7 +22,8 @@ Leader Feedback :
 Aryan Hussein :
 
 week 1 -->  /10 --> (shya leader)
-Week 2 -->  /10 --> Naz 
-Week 3 -->  /10 --> Soma
+Week 2 -->  /10 --> Naz   /10 --> soma
+Week 3 -->  /10 --> Naz   /10 --> Soma
+week 4 -->  /10 --> Naz   /10 --> Soma
 
 
