@@ -78,13 +78,6 @@ magic_square_ga/
 Make sure you have:
 
 - **Python 3.x**
-- **pip** (Python package manager)
-
-### 📦 Install Dependencies
-
-bash
-pip install Flask
-
 
 
 ### 🚀 Run the Project
