@@ -131,9 +131,8 @@ diabetes\_prediction\_project\
     ├── tailwind.config.js            # Tailwind CSS configuration
     └── vite.config.js                # Vite build configuration
 
-\---
 ```
-
+\---
 ## 🛠️ Prerequisites
 
 Ensure you have the following installed before proceeding:
