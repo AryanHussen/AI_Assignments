@@ -113,7 +113,7 @@ diabetes_prediction_project/
 ├── 📂 models/
 │   ├── svm_model.pkl                 # Serialized SVM model weights
 │   └── scaler.pkl                    # Fitted StandardScaler parameters
-│
+│   └── nn_model.pkl
 ├── 📂 backend/
 │   └── main.py                       # FastAPI server — routing & model inference
 │
