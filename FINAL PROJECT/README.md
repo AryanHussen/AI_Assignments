@@ -125,7 +125,6 @@ diabetes\_prediction\_project\
     │   ├── App.jsx                   # Main React component & state management
     │   ├── index.css                 # Global Tailwind/CSS styles
     │   └── main.jsx                  # React DOM entry point
-    ├── .gitignore                    # Git exclusion rules (node_modules, etc.)
     ├── index.html                    # Frontend entry page
     ├── package.json                  # Node dependencies & scripts
     ├── tailwind.config.js            # Tailwind CSS configuration
