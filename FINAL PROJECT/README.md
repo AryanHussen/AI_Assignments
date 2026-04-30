@@ -99,9 +99,6 @@ Models were trained and evaluated on the Kaggle Diabetes Dataset using an 80/20 
 
 ---
 
-## 📁 Project Structure
-
-```
 diabetes_prediction_project/
 │
 ├── 📂 data/
@@ -112,17 +109,25 @@ diabetes_prediction_project/
 │
 ├── 📂 models/
 │   ├── svm_model.pkl                 # Serialized SVM model weights
+│   ├── nn_model.pkl                  # Serialized Neural Network weights
 │   └── scaler.pkl                    # Fitted StandardScaler parameters
-│   └── nn_model.pkl
+│
 ├── 📂 backend/
 │   └── main.py                       # FastAPI server — routing & model inference
 │
 └── 📂 frontend/
-    ├── src/
-    │   └── App.jsx                   # Main React component & state management
-    ├── package.json                  # Node dependencies
-    └── tailwind.config.js            # Tailwind CSS configuration
-```
+    ├── 📂 public/                    # Static assets (favicons, icons)
+    ├── 📂 src/
+    │   ├── 📂 assets/                # Images (hero.png, react.svg, vite.svg)
+    │   ├── App.css                   # Main application styling
+    │   ├── App.jsx                   # Main React component & state management
+    │   ├── index.css                 # Global Tailwind/CSS styles
+    │   └── main.jsx                  # React DOM entry point
+    ├── .gitignore                    # Git exclusion rules (node_modules, etc.)
+    ├── index.html                    # Frontend entry page
+    ├── package.json                  # Node dependencies & scripts
+    ├── tailwind.config.js            # Tailwind CSS configuration
+    └── vite.config.js                # Vite build configuration
 
 ---
 
