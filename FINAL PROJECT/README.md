@@ -98,8 +98,10 @@ Models were trained and evaluated on the Kaggle Diabetes Dataset using an 80/20 
 5. Frontend renders results with dynamic risk-level styling
 
 ---
-
-diabetes_prediction_project/
+\---
+## 📁 Project Structure
+```
+diabetes\_prediction\_project\
 │
 ├── 📂 data/
 │   └── diabetes.csv                  # Raw Kaggle Pima Indians dataset
@@ -129,7 +131,8 @@ diabetes_prediction_project/
     ├── tailwind.config.js            # Tailwind CSS configuration
     └── vite.config.js                # Vite build configuration
 
----
+\---
+```
 
 ## 🛠️ Prerequisites
 
