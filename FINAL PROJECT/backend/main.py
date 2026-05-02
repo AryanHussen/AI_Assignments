@@ -1,44 +1,87 @@
-from fastapi import FastAPI  # FastAPI: modern web framework for building APIs; auto-generates docs and validates inputs
-from fastapi.middleware.cors import CORSMiddleware  # CORS middleware: controls which external origins (domains) are allowed to call this API
-from pydantic import BaseModel  # BaseModel: used to define and validate the shape/types of incoming request data
-import joblib  # joblib: used to load the serialized (saved) sklearn model and scaler objects from disk
-import numpy as np  # numpy: used to convert input data into an array format that sklearn models expect
+# Import the FastAPI framework to build the web API
+from fastapi import FastAPI
+# Import CORS middleware to handle cross-origin requests from the frontend
+from fastapi.middleware.cors import CORSMiddleware
+# Import BaseModel from Pydantic for automatic request body validation
+from pydantic import BaseModel
+# Import joblib to deserialize (load) the pre-trained model and scaler files
+import joblib
+# Import NumPy for numerical array operations required by Scikit-Learn
+import numpy as np
 
-app = FastAPI()  # create the FastAPI application instance; this is the main object that handles all routes and middleware
+# Create the FastAPI application instance — this is the core of our API server
+app = FastAPI()
 
-# Enable CORS so the React frontend can talk to this API
-app.add_middleware(  # register a middleware layer that runs on every incoming request before it reaches the route handler
-    CORSMiddleware,  # use the CORS middleware specifically to handle cross-origin request headers
-    allow_origins=["*"],  # allow requests from ANY origin (domain); in production replace "*" with your actual frontend URL e.g. "http://localhost:3000"
-    allow_credentials=True,  # allow cookies and HTTP authentication headers to be included in cross-origin requests
-    allow_methods=["*"],  # allow all HTTP methods (GET, POST, PUT, DELETE, etc.) from cross-origin requests
-    allow_headers=["*"],  # allow all HTTP headers (e.g. Content-Type, Authorization) in cross-origin requests
+# Register CORS middleware so the React frontend (running on a different port) can call this API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],        # Accept requests from any origin (lock this down in production)
+    allow_credentials=True,     # Allow cookies and auth headers to be sent cross-origin
+    allow_methods=["*"],        # Allow all HTTP methods (GET, POST, PUT, etc.)
+    allow_headers=["*"],        # Allow all request headers (Content-Type, Authorization, etc.)
 )
 
-model = joblib.load('../models/svm_model.pkl')  # deserialize and load the pre-trained SVM model from disk into memory so it's ready to make predictions
-scaler = joblib.load('../models/scaler.pkl')  # deserialize and load the fitted StandardScaler from disk; needed to apply the exact same scaling used during training
+# ─── LOAD ALL MODELS & SCALER ──────────────────────────────────────────
+# Load both models and the scaler once at startup — avoids reloading on every request
 
-class PatientData(BaseModel):  # define a Pydantic model (data schema) that describes the expected JSON body of the POST request
-    Glucose: float  # patient's plasma glucose concentration — must be a float; Pydantic will reject the request if this field is missing or wrong type
-    BMI: float  # Body Mass Index (weight/height²) — one of the top predictive features selected during training
-    Age: float  # patient's age in years — stored as float for consistency with the scaler's expectations
-    Pregnancies: float  # number of times the patient has been pregnant — float because scaler expects numeric, not int
-    DiabetesPedigreeFunction: float  # a score representing genetic diabetes risk based on family history — continuous value between 0 and ~2.5
+# Load the Support Vector Machine model trained on the diabetes dataset
+svm_model = joblib.load('../models/svm_model.pkl')
+# Load the Neural Network model trained on the same dataset
+nn_model = joblib.load('../models/nn_model.pkl')
+# Load the StandardScaler fitted on training data — must use the SAME scaler used during training
+scaler = joblib.load('../models/scaler.pkl')
 
-@app.post("/predict")  # register a POST route at the "/predict" endpoint; POST is used because we are sending data (patient inputs) in the request body
-def predict_diabetes(data: PatientData):  # FastAPI automatically parses the JSON request body and validates it against PatientData; 'data' holds the validated values
-    input_data = np.array([[  # convert the 5 patient feature values into a 2D NumPy array with shape (1, 5); sklearn models require 2D input — [[...]] creates 1 row, 5 columns
-       data.Pregnancies, data.Glucose, data.BMI,data.DiabetesPedigreeFunction ,data.Age   # extract each field from the validated Pydantic object in the SAME ORDER the model was trained on
+# Define the expected shape of the incoming JSON request body using Pydantic
+class PatientData(BaseModel):
+    # Each field maps to one of the Top 5 most important features identified during feature selection
+    # The order here must match the column order used when the models were trained
+    Glucose: float                    # Plasma glucose concentration (most predictive feature)
+    BMI: float                        # Body Mass Index — weight in kg / (height in m)^2
+    Age: float                        # Patient age in years
+    Pregnancies: float                # Number of times the patient has been pregnant
+    DiabetesPedigreeFunction: float   # Genetic risk score based on family history
+
+# Define the POST endpoint — the frontend sends patient data here to get a prediction
+@app.post("/predict")
+def predict_diabetes(data: PatientData):
+    # --- Step 1: Prepare the input array ---
+    # Scikit-Learn models expect a 2D array of shape (n_samples, n_features)
+    # We wrap the values in double brackets to create shape (1, 5) — one patient, five features
+    input_data = np.array([[
+        data.Pregnancies, data.Glucose, data.BMI,data.DiabetesPedigreeFunction ,data.Age
     ]])
 
-    scaled_data = scaler.transform(input_data)  # apply the same StandardScaler (mean=0, std=1) that was used during training; ensures the model receives data in the same scale it learned from
+    # --- Step 2: Scale the input features ---
+    # Apply the same StandardScaler transformation used on training data
+    # This converts raw values to z-scores: (value - mean) / std
+    # Without this step, features with large ranges (e.g. Glucose) would dominate the prediction
+    scaled_data = scaler.transform(input_data)
 
-    prediction = model.predict(scaled_data)  # run the SVM model on the scaled input; returns an array e.g. [1] (diabetic) or [0] (not diabetic)
+    # --- Step 3: Get probability estimates from each model independently ---
+    # predict_proba() returns a 2D array: [[prob_negative, prob_positive]]
+    # [0] selects the first (and only) sample row
+    # [1] selects the probability of class 1 (diabetic)
+    prob_svm = svm_model.predict_proba(scaled_data)[0][1]   # SVM's confidence the patient is diabetic
+    prob_nn  = nn_model.predict_proba(scaled_data)[0][1]    # Neural Network's confidence the patient is diabetic
 
-    probability = model.predict_proba(scaled_data)[0][1]  # predict_proba returns [[prob_class_0, prob_class_1]]; [0] gets the first (only) sample; [1] gets the probability of class 1 (diabetic)
+    # --- Step 4: Combine predictions via soft voting (ensemble averaging) ---
+    # Averaging the two probabilities reduces variance and improves reliability
+    # This is called a "soft voting ensemble" — each model gets equal weight (0.5 each)
+    avg_probability = (prob_svm + prob_nn) / 2
 
-    return {  # return a JSON response object to the frontend with three fields
-        "outcome": int(prediction[0]),  # prediction[0] extracts the scalar value from the array; cast to int so JSON can serialize it (numpy int64 is not JSON-serializable by default)
-        "probability": float(probability),  # cast to Python float for the same reason — numpy float64 must be converted before returning as JSON
-        "message": "High risk of diabetes" if prediction[0] == 1 else "Low risk of diabetes"  # human-readable verdict: if prediction is 1 → high risk, if 0 → low risk
+    # --- Step 5: Apply classification threshold ---
+    # If the ensemble probability is >= 50%, classify as diabetic (1), otherwise healthy (0)
+    # 0.5 is the standard threshold; lower it to catch more true positives at the cost of more false positives
+    final_prediction = 1 if avg_probability >= 0.5 else 0
+
+    # --- Step 6: Return a structured JSON response ---
+    return {
+        "outcome": int(final_prediction),              # Binary result: 1 = diabetic, 0 = healthy
+        "probability": float(avg_probability),         # Ensemble confidence score (0.0 – 1.0)
+        "details": {
+            "svm_confidence": float(prob_svm),         # SVM's individual probability estimate
+            "nn_confidence":  float(prob_nn)           # Neural Network's individual probability estimate
+        },
+        # Human-readable interpretation of the final prediction
+        "message": "High risk of diabetes" if final_prediction == 1 else "Low risk of diabetes"
     }
