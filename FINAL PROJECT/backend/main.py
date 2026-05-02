@@ -1,75 +1,44 @@
-# Import FastAPI framework to build the web API
-from fastapi import FastAPI
+from fastapi import FastAPI  # FastAPI: modern web framework for building APIs; auto-generates docs and validates inputs
+from fastapi.middleware.cors import CORSMiddleware  # CORS middleware: controls which external origins (domains) are allowed to call this API
+from pydantic import BaseModel  # BaseModel: used to define and validate the shape/types of incoming request data
+import joblib  # joblib: used to load the serialized (saved) sklearn model and scaler objects from disk
+import numpy as np  # numpy: used to convert input data into an array format that sklearn models expect
 
-# Import CORS middleware to handle cross-origin requests (e.g., from React frontend)
-from fastapi.middleware.cors import CORSMiddleware
+app = FastAPI()  # create the FastAPI application instance; this is the main object that handles all routes and middleware
 
-# Import BaseModel from Pydantic for request body validation and type checking
-from pydantic import BaseModel
-
-# Import joblib to load the pre-trained ML model and scaler from disk
-import joblib
-
-# Import numpy for numerical array operations required by the ML model
-import numpy as np
-
-# Initialize the FastAPI application instance
-app = FastAPI()
-
-# Register CORS middleware to allow the React frontend to make API calls
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],       # Accept requests from any origin (restrict in production)
-    allow_credentials=True,    # Allow cookies and auth headers to be sent cross-origin
-    allow_methods=["*"],       # Allow all HTTP methods: GET, POST, PUT, DELETE, etc.
-    allow_headers=["*"],       # Allow all request headers (e.g., Content-Type, Authorization)
+# Enable CORS so the React frontend can talk to this API
+app.add_middleware(  # register a middleware layer that runs on every incoming request before it reaches the route handler
+    CORSMiddleware,  # use the CORS middleware specifically to handle cross-origin request headers
+    allow_origins=["*"],  # allow requests from ANY origin (domain); in production replace "*" with your actual frontend URL e.g. "http://localhost:3000"
+    allow_credentials=True,  # allow cookies and HTTP authentication headers to be included in cross-origin requests
+    allow_methods=["*"],  # allow all HTTP methods (GET, POST, PUT, DELETE, etc.) from cross-origin requests
+    allow_headers=["*"],  # allow all HTTP headers (e.g. Content-Type, Authorization) in cross-origin requests
 )
 
-# Load the pre-trained SVM (Support Vector Machine) model saved as a .pkl file
-# This model was previously trained and serialized using joblib
-model = joblib.load('../models/svm_model.pkl')
+model = joblib.load('../models/svm_model.pkl')  # deserialize and load the pre-trained SVM model from disk into memory so it's ready to make predictions
+scaler = joblib.load('../models/scaler.pkl')  # deserialize and load the fitted StandardScaler from disk; needed to apply the exact same scaling used during training
 
-# Load the pre-fitted scaler (e.g., StandardScaler) used during training
-# It's critical to use the SAME scaler from training to ensure consistent feature normalization
-scaler = joblib.load('../models/scaler.pkl')
+class PatientData(BaseModel):  # define a Pydantic model (data schema) that describes the expected JSON body of the POST request
+    Glucose: float  # patient's plasma glucose concentration — must be a float; Pydantic will reject the request if this field is missing or wrong type
+    BMI: float  # Body Mass Index (weight/height²) — one of the top predictive features selected during training
+    Age: float  # patient's age in years — stored as float for consistency with the scaler's expectations
+    Pregnancies: float  # number of times the patient has been pregnant — float because scaler expects numeric, not int
+    DiabetesPedigreeFunction: float  # a score representing genetic diabetes risk based on family history — continuous value between 0 and ~2.5
 
-# Define the expected shape and types of the incoming request body using Pydantic
-# FastAPI will automatically validate and parse the JSON body into this model
-class PatientData(BaseModel):
-    Glucose: float                    # Blood glucose concentration level
-    BMI: float                        # Body Mass Index (weight/height²)
-    Age: float                        # Patient's age in years
-    Pregnancies: float                # Number of times the patient has been pregnant
-    DiabetesPedigreeFunction: float   # Genetic likelihood score of diabetes based on family history
-
-# Define the POST endpoint at "/predict" that accepts patient data and returns a prediction
-@app.post("/predict")
-def predict_diabetes(data: PatientData):
-
-    # Convert the incoming Pydantic model fields into a 2D NumPy array
-    # Shape must be (1, 5) — one sample with five features — as required by scikit-learn
-    input_data = np.array([[
-        data.Glucose, data.BMI, data.Age, data.Pregnancies, data.DiabetesPedigreeFunction
+@app.post("/predict")  # register a POST route at the "/predict" endpoint; POST is used because we are sending data (patient inputs) in the request body
+def predict_diabetes(data: PatientData):  # FastAPI automatically parses the JSON request body and validates it against PatientData; 'data' holds the validated values
+    input_data = np.array([[  # convert the 5 patient feature values into a 2D NumPy array with shape (1, 5); sklearn models require 2D input — [[...]] creates 1 row, 5 columns
+       data.Pregnancies, data.Glucose, data.BMI,data.DiabetesPedigreeFunction ,data.Age   # extract each field from the validated Pydantic object in the SAME ORDER the model was trained on
     ]])
 
-    # Apply the same scaling transformation used during model training
-    # This standardizes features to have zero mean and unit variance
-    # Skipping this step would cause incorrect predictions due to feature scale mismatch
-    scaled_data = scaler.transform(input_data)
+    scaled_data = scaler.transform(input_data)  # apply the same StandardScaler (mean=0, std=1) that was used during training; ensures the model receives data in the same scale it learned from
 
-    # Use the loaded SVM model to predict the class label: 1 (diabetic) or 0 (non-diabetic)
-    prediction = model.predict(scaled_data)
+    prediction = model.predict(scaled_data)  # run the SVM model on the scaled input; returns an array e.g. [1] (diabetic) or [0] (not diabetic)
 
-    # Get the predicted probability scores for both classes [class_0, class_1]
-    # We extract index [0][1] to get the probability of being diabetic (class 1)
-    probability = model.predict_proba(scaled_data)[0][1]
+    probability = model.predict_proba(scaled_data)[0][1]  # predict_proba returns [[prob_class_0, prob_class_1]]; [0] gets the first (only) sample; [1] gets the probability of class 1 (diabetic)
 
-    # Return a JSON response containing:
-    # - outcome: binary prediction (0 or 1) cast to Python int for JSON serialization
-    # - probability: confidence score (0.0 to 1.0) of the diabetic prediction
-    # - message: human-readable risk label based on the predicted class
-    return {
-        "outcome": int(prediction[0]),         # 1 = diabetic, 0 = non-diabetic
-        "probability": float(probability),     # e.g., 0.87 means 87% chance of diabetes
-        "message": "High risk of diabetes" if prediction[0] == 1 else "Low risk of diabetes"
+    return {  # return a JSON response object to the frontend with three fields
+        "outcome": int(prediction[0]),  # prediction[0] extracts the scalar value from the array; cast to int so JSON can serialize it (numpy int64 is not JSON-serializable by default)
+        "probability": float(probability),  # cast to Python float for the same reason — numpy float64 must be converted before returning as JSON
+        "message": "High risk of diabetes" if prediction[0] == 1 else "Low risk of diabetes"  # human-readable verdict: if prediction is 1 → high risk, if 0 → low risk
     }
