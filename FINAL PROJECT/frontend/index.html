@@ -1,13 +1,26 @@
+<!-- Declares the document type as HTML5 -->
 <!doctype html>
+
+<!-- Sets the root element of the page and specifies English as the language -->
 <html lang="en">
   <head>
+    <!-- Sets the character encoding to UTF-8 to support all text characters -->
     <meta charset="UTF-8" />
+
+    <!-- Links the small icon shown in the browser tab (favicon) -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Ensures the website is responsive and scales correctly on mobile devices -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- The title of the webpage that appears in the browser tab -->
     <title>frontend</title>
   </head>
   <body>
+    <!-- The main container where the React application will be rendered/injected -->
     <div id="root"></div>
+
+    <!-- Loads the main JavaScript file as a module to start the React logic -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
